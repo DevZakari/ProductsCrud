@@ -24,16 +24,27 @@ namespace CrudProducts.Pages.Products
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public IActionResult OnGet()
-        {
-            return Page();
-        }
+       
 
         [BindProperty]
         public Product Product { get; set; }
         // Property to represent the uploaded image file
         [BindProperty]
         public IFormFile ImageFile { get; set; }
+
+
+        [BindProperty]
+        public int Category { get; set; }
+        public SelectList CategoryList { get; set; }
+
+        public IActionResult OnGet()
+        {
+            // Chargez la liste des catégories dans la méthode OnGet
+            CategoryList = new SelectList(_context.Category, "Id", "Name");
+            return Page();
+        }
+
+
 
         [HttpPost]
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
@@ -66,6 +77,8 @@ namespace CrudProducts.Pages.Products
                 // Update the path as per your project structure
 
             }
+
+            Product.CategoryId = Category;
             _context.Product.Add(Product);
             await _context.SaveChangesAsync();
 

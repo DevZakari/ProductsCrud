@@ -3,14 +3,16 @@ using CrudProducts.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CrudProducts.Migrations
 {
     [DbContext(typeof(CrudProductsContext))]
-    partial class CrudProductsContextModelSnapshot : ModelSnapshot
+    [Migration("20231023141729_catProducts")]
+    partial class catProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

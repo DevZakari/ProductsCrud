@@ -6,22 +6,24 @@
 @{
   
 }
+<h1 class="mt-5">Shopping Cart</h1>
 
-<h1>Shopping Cart</h1>
-<table class="table" id="cartTable">
-    <thead>
-        <tr>
-            <th>Product ID</th>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody id="cartBody">
-    </tbody>
-</table>
-
+<div class="table-responsive mt-4">
+    <table class="table table-bordered" id="cartTable">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Product ID</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="cartBody">
+            <!-- Les éléments du panier seront ajoutés ici dynamiquement -->
+        </tbody>
+    </table>
+</div>
 @section Scripts
     {
     <script>
@@ -32,8 +34,8 @@
 
             // Sélectionner l'élément tbody du tableau
             const cartBody = document.getElementById('cartBody');
+            cartBody.innerHTML = '';
 
-            // Parcourir chaque élément dans le panier
             cartItems.forEach(item => {
                 // Créer une ligne pour chaque élément
                 const row = document.createElement('tr');
@@ -42,31 +44,45 @@
 
                 // Ajouter les colonnes avec les données de l'élément
                 row.innerHTML = `
-                            <td>${item.productId}</td>
-                            <td>${item.productName}</td>
-                            <td><input type="number" min="1" max="100" step="1" value="${item.quantity}" />
-                            </td>
-                                    <td>${(price * quantity).toFixed(2)}</td>
-                            <td>
-                                        <button class="updateBtn" data-product-id="${item.productId}">Update</button>
-                                        <button class="deleteBtn" data-product-id="${item.productId}">Delete</button>
-                            </td>
-                        `;
+                <td>${item.productId}</td>
+                <td>${item.productName}</td>
+                <td>
+                    <input type="number" class="form-control" min="1" max="100" step="1" value="${item.quantity}" />
+                </td>
+                <td>${(price * quantity).toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-primary updateBtn" data-product-id="${item.productId}">Update</button>
+                    <button class="btn btn-danger deleteBtn" data-product-id="${item.productId}">Delete</button>
+                </td>
+            `;
 
                 // Ajouter la ligne à tbody
                 cartBody.appendChild(row);
 
-
                 const updateBtn = row.querySelector('.updateBtn');
+                const quantityInput = row.querySelector('input[type="number"]');
+
                 updateBtn.addEventListener('click', function () {
                     const productId = this.getAttribute('data-product-id');
-                    const quantityInput = row.querySelector('input[type="number"]');
-
-                    // Récupérez la valeur de l'élément input
                     const updatedQuantity = parseInt(quantityInput.value);
 
                     // Mettre à jour la quantité dans le panier
                     updateCartItem(productId, updatedQuantity);
+
+                    // Mettre à jour le sous-total
+                    const updatedPrice = parseFloat(item.productPrice);
+                    const updatedSubtotal = updatedQuantity * updatedPrice;
+                    row.querySelector('td:nth-child(4)').textContent = updatedSubtotal.toFixed(2);
+                });
+
+                // Gestionnaire d'événement pour le changement de quantité en temps réel
+                quantityInput.addEventListener('input', function () {
+                    const updatedQuantity = parseInt(this.value);
+
+                    // Mettre à jour le sous-total en temps réel
+                    const updatedPrice = parseFloat(item.productPrice);
+                    const updatedSubtotal = updatedQuantity * updatedPrice;
+                    row.querySelector('td:nth-child(4)').textContent = updatedSubtotal.toFixed(2);
                 });
 
                 // Gestionnaire d'événement pour le bouton Delete
@@ -123,16 +139,11 @@
             // Réinitialiser le corps du panier
             cartBody.innerHTML = '';
 
-            // Parcourir chaque élément dans le panier
-            cart.forEach(item => {
-                // Créer une ligne pour chaque élément
-                const row = document.createElement('tr');
+            // Parcourir chaque élément dans le panier et créer une ligne pour chacun
+            cart.forEach(createRow);
 
-                // ... (reprendre le code pour ajouter les colonnes)
-
-                // Ajouter la ligne à tbody
-                cartBody.appendChild(row);
-            });
+            // Mettre à jour le nombre d'articles dans le panier
+            updateCartCount();
         }
     </script>
 }

@@ -4,79 +4,101 @@
 @{
     ViewData["Title"] = "Index";
 }
+<!DOCTYPE html>
+<html lang="en">
 
-<h1>Index</h1>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link rel="stylesheet" href="~/css/styleFiltre.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+</head>
 
-<form>
-    Nom du produit <input type="text" asp-for="prd" />
-    Prix supérieur <input type="number" asp-for="minPrice" />
-    Prix inférieur <input type="number" asp-for="maxPrice" />
-    <input type="submit" value="Filtrer" />
-</form>
+<body>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Product[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product[0].Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product[0].Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product[0].imageUrl)
-            </th>
-            <th>
-                Actions
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Product != null)
+    <h1>Bienvenue sur notre collection de produit</h1>
+
+    <button class="create-button" asp-page="Create">
+        <a class="create-button" asp-page="Create">
+            <i class="fas fa-plus"></i> Create New
+        </a>
+    </button>
+    <form>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="prd">Nom du produit</label>
+                <input type="text" id="prd" name="prd" asp-for="prd" />
+            </div>
+
+            <div class="form-group">
+                <label for="minPrice">Prix supérieur</label>
+                <input type="number" id="minPrice" name="minPrice" asp-for="minPrice" />
+            </div>
+
+            <div class="form-group">
+                <label for="maxPrice">Prix inférieur</label>
+                <input type="number" id="maxPrice" name="maxPrice" asp-for="maxPrice" />
+            </div>
+            <div class="form-group">
+                <label for="selectedCategory">Catégorie</label>
+                <select id="selectedCategory" name="selectedCategory" asp-for="selectedCategory" class="form-control">
+                    <option value="">Toutes les catégories</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id.ToString()">@category.Name</option>
+                    }
+                </select>
+
+</div>
+
+
+            <div class="form-group">
+                <input type="submit" value="Filtrer" />
+            </div>
+        </div>
+    </form>
+
+
+    <div class="card-columns">
+        @if (Model.Product != null && Model.Product.Any())
         {
-            @foreach (var item in Model.Product)
+            foreach (var item in Model.Product)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Price)
-                    </td>
-                    <td>
-                        <img src="@item.imageUrl" alt="Image" style="max-width: 100px; max-height: 100px;" />
-                    </td>
-                    <td>
-                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                    <td>
-                        <button class="addToCartBtn" data-product-id="@item.Id" data-product-price="@item.Price" data-product-name="@item.Name" >Add to Cart</button>
-
-                    </td>
-                </tr>
+                <div class="card custom-card">
+                    <img src="@item.imageUrl" class="card-img img-fluid" alt="Product Image">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">@item.Description</p>
+                        <p class="card-text">Price: @item.Price</p>
+                        <button class="btn btn-success addToCartBtn" data-product-id="@item.Id" data-product-price="@item.Price" data-product-name="@item.Name">Add to Cart</button>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>
+                            <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-info">Details</a>
+                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                        </small>
+                    </div>
+                </div>
             }
         }
         else
         {
-            <tr>
-                <td colspan="6">Aucun résultat trouvé.</td>
-            </tr>
+            <p>Aucun résultat trouvé.</p>
         }
-    </tbody>
+    </div>
 
-</table>
+
+
+
+
+
+</body>
+
+</html>
+
 
 @section Scripts
     {

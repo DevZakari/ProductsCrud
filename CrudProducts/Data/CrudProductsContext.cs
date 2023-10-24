@@ -19,5 +19,7 @@ namespace CrudProducts.Data
         }
 
         public DbSet<CrudProducts.Model.Product> Product { get; set; }
+
+        public DbSet<CrudProducts.Model.Category> Category { get; set; }
     }
 }

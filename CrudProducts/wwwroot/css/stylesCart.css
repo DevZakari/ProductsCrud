@@ -1,0 +1,19 @@
+﻿#cartContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.card {
+    width: 300px;
+    margin: 10px;
+}
+
+.card-body {
+    text-align: center;
+}
+
+.updateBtn, .deleteBtn {
+    margin-top: 10px;
+}

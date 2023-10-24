@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CrudProducts.Data;
 using CrudProducts.Model;
 
-namespace CrudProducts.Pages.Products
+namespace CrudProducts.Pages.Categories
 {
     public class DetailsModel : PageModel
     {
@@ -19,8 +19,7 @@ namespace CrudProducts.Pages.Products
             _context = context;
         }
 
-        public Product Product { get; set; }
-        public string CategoryName { get; set; }
+        public Category Category { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -29,11 +28,9 @@ namespace CrudProducts.Pages.Products
                 return NotFound();
             }
 
-            Product = await _context.Product.FirstOrDefaultAsync(m => m.Id == id);
-            var category = await _context.Category.FindAsync(Product.CategoryId);
-            CategoryName = category?.Name;
+            Category = await _context.Category.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Product == null)
+            if (Category == null)
             {
                 return NotFound();
             }
