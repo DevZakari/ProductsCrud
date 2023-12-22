@@ -9,7 +9,7 @@
     <div class="card">
         <h1 class="card-header">Edit Product</h1>
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" novalidate>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Product.Id" />
 
@@ -27,7 +27,7 @@
 
                 <div class="form-group">
                     <label asp-for="Product.Price" class="control-label">Price</label>
-                    <input asp-for="Product.Price" class="form-control" />
+                    <input asp-for="Product.Price" class="form-control" step="any" />
                     <span asp-validation-for="Product.Price" class="text-danger"></span>
                 </div>
 
@@ -39,9 +39,11 @@
 
                 <div class="form-group">
                     <label asp-for="ImageFile" class="control-label">Product Image</label>
-                    <input asp-for="ImageFile" type="file" class="form-control" />
+    <input asp-for="ImageFile" type="file" class="form-control" value="@Model.Product.imageUrl" />
                     <span asp-validation-for="ImageFile" class="text-danger"></span>
                 </div>
+                <input type="hidden" asp-for="Product.imageUrl" />
+
 
                 <div class="form-group">
                     <img src="@Model.Product.imageUrl" alt="Product Image" class="img-fluid rounded" style="max-height: 200px;" />

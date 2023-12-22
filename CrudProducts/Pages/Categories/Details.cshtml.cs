@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CrudProducts.Data;
 using CrudProducts.Model;
+using CrudProducts.Controllers;
 
 namespace CrudProducts.Pages.Categories
 {
     public class DetailsModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
+        private readonly CategoriesController _categoriesController;
 
-        public DetailsModel(CrudProducts.Data.CrudProductsContext context)
+        public DetailsModel(CategoriesController categoriesController)
         {
-            _context = context;
+            _categoriesController = categoriesController;
         }
 
         public Category Category { get; set; }
@@ -28,13 +29,17 @@ namespace CrudProducts.Pages.Categories
                 return NotFound();
             }
 
-            Category = await _context.Category.FirstOrDefaultAsync(m => m.Id == id);
+            // Utilisez le résultat de la méthode Details dans le controller
+            var result = await _categoriesController.Details(id);
 
-            if (Category == null)
+            // Vérifiez si le résultat est une vue, puis utilisez-le pour initialiser la propriété Category
+            if (result is ViewResult viewResult)
             {
-                return NotFound();
+                Category = viewResult.Model as Category;
+                return Page();
             }
-            return Page();
+
+            return result;
         }
     }
 }

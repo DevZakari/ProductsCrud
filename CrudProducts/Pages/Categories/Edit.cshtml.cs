@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using CrudProducts.Controllers;
+using CrudProducts.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CrudProducts.Data;
-using CrudProducts.Model;
 
 namespace CrudProducts.Pages.Categories
 {
     public class EditModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
+        private readonly CategoriesController _categoriesController;
 
-        public EditModel(CrudProducts.Data.CrudProductsContext context)
+        public EditModel(CategoriesController categoriesController)
         {
-            _context = context;
+            _categoriesController = categoriesController;
         }
 
         [BindProperty]
@@ -30,17 +25,19 @@ namespace CrudProducts.Pages.Categories
                 return NotFound();
             }
 
-            Category = await _context.Category.FirstOrDefaultAsync(m => m.Id == id);
+            // Utilisez le résultat de la méthode Edit dans le controller
+            var result = await _categoriesController.Edit(id);
 
-            if (Category == null)
+            // Vérifiez si le résultat est une vue, puis utilisez-le pour initialiser la propriété Category
+            if (result is ViewResult viewResult)
             {
-                return NotFound();
+                Category = viewResult.Model as Category;
+                return Page();
             }
-            return Page();
+
+            return result;
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
@@ -48,30 +45,12 @@ namespace CrudProducts.Pages.Categories
                 return Page();
             }
 
-            _context.Attach(Category).State = EntityState.Modified;
+            var result = await _categoriesController.Edit(Category.Id, Category);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(Category.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Faites quelque chose avec le résultat si nécessaire
 
             return RedirectToPage("./Index");
         }
 
-        private bool CategoryExists(int id)
-        {
-            return _context.Category.Any(e => e.Id == id);
-        }
     }
 }

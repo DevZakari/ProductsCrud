@@ -1,25 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CrudProducts.Data;
 using CrudProducts.Model;
+using Microsoft.AspNetCore.Mvc;
+using CrudProducts.Controllers;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CrudProducts.Pages.Products
 {
+
+    [Authorize]
     public class IndexModel : PageModel
     {
-        private readonly CrudProductsContext _context;
+        private readonly ProductsController _productsController;
 
-        public IndexModel(CrudProductsContext context)
+        public IndexModel(ProductsController productsController)
         {
-            _context = context;
+            _productsController = productsController;
         }
 
         public IList<Product> Product { get; set; }
+        public IList<Category> Categories { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public string prd { get; set; }
@@ -30,52 +35,58 @@ namespace CrudProducts.Pages.Products
         [BindProperty(SupportsGet = true)]
         public decimal? maxPrice { get; set; }
 
-        // Ajout d'une nouvelle propriété pour les catégories
-        public IList<Category> Categories { get; set; }
-
         [BindProperty(SupportsGet = true)]
         public string selectedCategory { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            try
+            var result = await _productsController.Index();
+
+            if (result is ViewResult viewResult)
             {
-                IQueryable<Product> productsQuery = _context.Product;
+                Product = viewResult.Model as List<Product>;
 
-                if (!string.IsNullOrEmpty(prd))
-                {
-                    productsQuery = productsQuery.Where(p => p.Name.Contains(prd));
-                }
+                var categoriesResult = await _productsController.GetCategories();
 
-                if (minPrice.HasValue)
+                if (categoriesResult != null)
                 {
-                    productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
+                    Categories = categoriesResult as List<Category>;
                 }
-
-                if (maxPrice.HasValue)
+                else
                 {
-                    productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
+                    Console.WriteLine("Categories result is null.");
                 }
-                if (!string.IsNullOrEmpty(selectedCategory))
-                {
-                    int selectedCategoryId;
-                    if (int.TryParse(selectedCategory, out selectedCategoryId))
-                    {
-                        Console.WriteLine($"Selected Category Id: {selectedCategoryId}");
-                        productsQuery = productsQuery.Where(p => p.CategoryId == selectedCategoryId);
-                    }
-                }
-                Categories = await _context.Category.ToListAsync();
-                Product = await productsQuery.ToListAsync();
             }
-            catch (Exception ex)
+            else
             {
-               
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                throw;
+                Console.WriteLine($"Unexpected result type for products: {result?.GetType().FullName}");
             }
+
+            return Page();
         }
 
+        public async Task<IActionResult> OnPostFilterAsync()
+        {
+            // Appel de la méthode de filtrage du contrôleur avec les paramètres de filtrage
+            var result = await _productsController.FilterProducts(prd, minPrice, maxPrice, selectedCategory);
+
+            if (result is OkObjectResult okObjectResult)
+            {
+                // Mettez à jour seulement la variable Product avec les résultats du filtrage
+                Product = okObjectResult.Value as List<Product>;
+            }
+
+            // Chargez les catégories indépendamment de l'opération de filtrage
+            Categories = await _productsController.GetCategories();
+
+            return Page();
+        }
+
+
+
+
+
     }
+
+
 }

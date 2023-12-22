@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using CrudProducts.Controllers;
+using CrudProducts.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using CrudProducts.Data;
-using CrudProducts.Model;
 
 namespace CrudProducts.Pages.Categories
 {
     public class DeleteModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
+        private readonly CategoriesController _categoriesController;
 
-        public DeleteModel(CrudProducts.Data.CrudProductsContext context)
+        public DeleteModel(CategoriesController categoriesController)
         {
-            _context = context;
+            _categoriesController = categoriesController;
         }
 
         [BindProperty]
@@ -26,34 +23,43 @@ namespace CrudProducts.Pages.Categories
         {
             if (id == null)
             {
+              
                 return NotFound();
             }
 
-            Category = await _context.Category.FirstOrDefaultAsync(m => m.Id == id);
+            // Utilisez le résultat de la méthode Delete dans le controller
+            var result = await _categoriesController.Delete(id);
 
-            if (Category == null)
+            // Vérifiez si le résultat est une vue, puis utilisez-le pour initialiser la propriété Category
+            if (result is ViewResult viewResult)
+            {
+                Category = viewResult.Model as Category;
+                return Page();
+            }
+
+            return result;
+        }
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (Category.Id == 0)
             {
                 return NotFound();
             }
+
+            var result = await _categoriesController.DeleteConfirmed(Category.Id);
+
+            if (result is RedirectToActionResult redirectResult)
+            {
+                // Si la suppression réussit, redirigez vers la page d'index
+                return RedirectToPage("./Index");
+            }
+
+            // Si la suppression échoue, affichez la page actuelle avec le modèle actuel
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            Category = await _context.Category.FindAsync(id);
-
-            if (Category != null)
-            {
-                _context.Category.Remove(Category);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index");
-        }
     }
+
 }

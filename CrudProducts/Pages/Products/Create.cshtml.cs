@@ -11,20 +11,23 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
+using CrudProducts.Controllers;
 
 namespace CrudProducts.Pages.Products
 {
     public class CreateModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public CreateModel(CrudProducts.Data.CrudProductsContext context, IWebHostEnvironment hostingEnvironment)
+        private readonly ProductsController _productsController;
+
+        public CreateModel( IWebHostEnvironment hostingEnvironment, ProductsController productsController)
         {
-            _context = context;
             _hostingEnvironment = hostingEnvironment;
+            _productsController = productsController;
+
         }
 
-       
+
 
         [BindProperty]
         public Product Product { get; set; }
@@ -39,8 +42,18 @@ namespace CrudProducts.Pages.Products
 
         public IActionResult OnGet()
         {
-            // Chargez la liste des catégories dans la méthode OnGet
-            CategoryList = new SelectList(_context.Category, "Id", "Name");
+            // Appelez la méthode GetCategories du controller
+            var categoriesResult = _productsController.GetCategories();
+
+            if (categoriesResult != null && categoriesResult.Result is List<Category> categories)
+            {
+                CategoryList = new SelectList(categories, "Id", "Name");
+            }
+            else
+            {
+                Console.WriteLine("Failed to get categories.");
+            }
+
             return Page();
         }
 
@@ -77,12 +90,16 @@ namespace CrudProducts.Pages.Products
                 // Update the path as per your project structure
 
             }
+            var createResult = await _productsController.Create(Product);
 
-            Product.CategoryId = Category;
-            _context.Product.Add(Product);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
+            if (createResult is RedirectToActionResult redirectToActionResult)
+            {
+                return RedirectToPage("./Index");
+            }
+            else
+            {
+                return Page();
+            }
         }
     }
 }

@@ -14,6 +14,7 @@
             <tr>
                 <th scope="col">Product ID</th>
                 <th scope="col">Product Name</th>
+                <th scope="col">Product Image</th>
                 <th scope="col">Quantity</th>
                 <th scope="col">Subtotal</th>
                 <th scope="col">Action</th>
@@ -24,6 +25,7 @@
         </tbody>
     </table>
 </div>
+
 @section Scripts
     {
     <script>
@@ -44,17 +46,20 @@
 
                 // Ajouter les colonnes avec les données de l'élément
                 row.innerHTML = `
-                <td>${item.productId}</td>
-                <td>${item.productName}</td>
-                <td>
-                    <input type="number" class="form-control" min="1" max="100" step="1" value="${item.quantity}" />
-                </td>
-                <td>${(price * quantity).toFixed(2)}</td>
-                <td>
-                    <button class="btn btn-primary updateBtn" data-product-id="${item.productId}">Update</button>
-                    <button class="btn btn-danger deleteBtn" data-product-id="${item.productId}">Delete</button>
-                </td>
-            `;
+            <td>${item.productId}</td>
+            <td>${item.productName}</td>
+           <td style="text-align: center;">
+        <img src="${item.productImageUrl}" alt="${item.productName}" style="max-width: 70px; max-height: 70px; display: block; margin: 0 auto;">
+    </td>
+            <td>
+                <input type="number" class="form-control" min="1" max="100" step="1" value="${item.quantity}" />
+            </td>
+            <td>${(price * quantity).toFixed(2)}</td>
+            <td>
+                <button class="btn btn-primary updateBtn" data-product-id="${item.productId}">Update</button>
+                <button class="btn btn-danger deleteBtn" data-product-id="${item.productId}">Delete</button>
+            </td>
+        `;
 
                 // Ajouter la ligne à tbody
                 cartBody.appendChild(row);

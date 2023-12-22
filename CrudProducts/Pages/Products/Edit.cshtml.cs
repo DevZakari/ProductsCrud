@@ -11,18 +11,19 @@ using CrudProducts.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using CrudProducts.Controllers;
 
 namespace CrudProducts.Pages.Products
 {
     public class EditModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ProductsController _productsController;
 
-        public EditModel(CrudProducts.Data.CrudProductsContext context,IWebHostEnvironment hostingEnvironment)
+        public EditModel(IWebHostEnvironment hostingEnvironment, ProductsController productsController)
         {
             _hostingEnvironment = hostingEnvironment;
-            _context = context;
+            _productsController = productsController;
         }
 
         [BindProperty]
@@ -39,15 +40,32 @@ namespace CrudProducts.Pages.Products
                 return NotFound();
             }
 
-            Product = await _context.Product.FirstOrDefaultAsync(m => m.Id == id);
+            var productResult = await _productsController.GetProduct(id);
+
+            if (productResult is ViewResult productViewResult)
+            {
+                Product = productViewResult.Model as Product;
+            }
+            else
+            {
+                return NotFound();
+            }
 
             if (Product == null)
             {
                 return NotFound();
             }
 
-            // Chargez la liste des catégories
-            CategoryList = new SelectList(await _context.Category.ToListAsync(), "Id", "Name", Product.CategoryId);
+            var categoryListResult = await _productsController.GetCategories();
+
+            if (categoryListResult is List<Category> categoryList)
+            {
+                CategoryList = new SelectList(categoryList, "Id", "Name", Product.CategoryId);
+            }
+            else
+            {
+                return NotFound();
+            }
 
             return Page();
         }
@@ -56,12 +74,9 @@ namespace CrudProducts.Pages.Products
         {
             if (!ModelState.IsValid)
             {
-                // Rechargez la liste des catégories en cas d'échec de la validation
-                CategoryList = new SelectList(await _context.Category.ToListAsync(), "Id", "Name", Product.CategoryId);
                 return Page();
             }
 
-            // Si une nouvelle image est fournie
             if (ImageFile != null && ImageFile.Length > 0)
             {
                 // Supprimez l'ancienne image si elle existe
@@ -77,7 +92,7 @@ namespace CrudProducts.Pages.Products
                 // Générez un nom de fichier unique en utilisant un timestamp
                 var fileName = DateTime.Now.Ticks + Path.GetExtension(ImageFile.FileName);
 
-                // Chemin où sauvegarder l'image
+                // Chemin où sauvegarder la nouvelle image
                 var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
@@ -90,35 +105,22 @@ namespace CrudProducts.Pages.Products
                     await ImageFile.CopyToAsync(fileStream);
                 }
 
-                // Mise à jour du chemin de l'image dans la base de données
+                // Mise à jour du chemin de l'image dans la base de données avec le nouveau chemin
                 Product.imageUrl = "/uploads/" + fileName;
             }
 
-            _context.Update(Product);
+            // Appel de la méthode Edit du controller pour gérer l'édition
+            var editResult = await _productsController.Edit(Product.Id, Product);
 
-            try
+            if (editResult is RedirectToActionResult)
             {
-                await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
-            catch (DbUpdateConcurrencyException)
+            else
             {
-                if (!ProductExists(Product.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
-
-            return RedirectToPage("./Index");
-        }
-
-
-        private bool ProductExists(int id)
-        {
-            return _context.Product.Any(e => e.Id == id);
         }
     }
+
 }

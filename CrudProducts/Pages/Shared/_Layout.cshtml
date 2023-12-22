@@ -1,44 +1,58 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
     <title>@ViewData["Title"] - Online Shop</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Online Shop</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+   @if (Context.User.Identity.IsAuthenticated)
+    {
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container">
+                    <a class="navbar-brand" asp-area="" asp-page="/Index">Online Shop</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1 ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href ="/Products/Index">Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <ul class="navbar-nav flex-grow-1 ml-auto">
+                            <li class="nav-item" style="background-color: black;  border-radius: 10px; margin-left: 10px;">
+                                <a class="nav-link" asp-area="" asp-page="/Index" style=" color: white;">Home</a>
+                            </li>
+                            <li class="nav-item" style="background-color: black;  border-radius: 10px; margin-left: 10px;">
+                                <a class="nav-link" href="/Products/Index" style=" color: white;">Products</a>
+                            </li>
+                            <li class="nav-item" style="background-color: black; border-radius: 10px; margin-left: 10px;">
+                                <a class="nav-link" href="/Categories/Index" style=" color: white;">Categories</a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/ShoppingCart/Cart">
-                                <i class="bi bi-cart"></i> <span id="cartCount" class="badge badge-danger">0</span>
-                            </a>
-                        </li>
-                    </ul>
+
+                            <li class="nav-item" style="margin-left: auto; font-size: 20px;">
+                                <a class="nav-link text-dark" href="/ShoppingCart/Cart">
+                                    <i class="bi bi-cart"></i> <span id="cartCount" class="badge badge-danger">0</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" style="background-color: black; border-radius: 10px; margin-left: 10px;">
+                                <a class="nav-link" asp-page="/Admin/Logout" style="color: white;">Logout</a>
+                            </li>
+                           
+                        </ul>
+                    </div>
+
                 </div>
+            </nav>
+        </header>
+    }
 
-            </div>
-        </nav>
-    </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -58,6 +72,7 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

@@ -1,29 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using CrudProducts.Data;
+using CrudProducts.Controllers;
 using CrudProducts.Model;
 
 namespace CrudProducts.Pages.Categories
 {
     public class IndexModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
+        private readonly CategoriesController _categoriesController;
 
-        public IndexModel(CrudProducts.Data.CrudProductsContext context)
+        public IndexModel(CategoriesController categoriesController)
         {
-            _context = context;
+            _categoriesController = categoriesController;
         }
 
-        public IList<Category> Category { get;set; }
+        public IList<Category> Category { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            Category = await _context.Category.ToListAsync();
+            var result = await _categoriesController.Index();
+            if (result is ViewResult viewResult)
+            {
+                Category = viewResult.Model as List<Category>;
+            }
+
+            return Page();
         }
     }
 }

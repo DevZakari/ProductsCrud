@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using CrudProducts.Controllers;
+using CrudProducts.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using CrudProducts.Data;
-using CrudProducts.Model;
 
 namespace CrudProducts.Pages.Products
 {
     public class DetailsModel : PageModel
     {
-        private readonly CrudProducts.Data.CrudProductsContext _context;
+        private readonly ProductsController _productsController;
 
-        public DetailsModel(CrudProducts.Data.CrudProductsContext context)
+        public DetailsModel(ProductsController productsController)
         {
-            _context = context;
+            _productsController = productsController;
         }
 
         public Product Product { get; set; }
-        public string CategoryName { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -29,15 +24,15 @@ namespace CrudProducts.Pages.Products
                 return NotFound();
             }
 
-            Product = await _context.Product.FirstOrDefaultAsync(m => m.Id == id);
-            var category = await _context.Category.FindAsync(Product.CategoryId);
-            CategoryName = category?.Name;
+            var result = await _productsController.Details(id);
 
-            if (Product == null)
+            if (result is ViewResult viewResult)
             {
-                return NotFound();
+                Product = viewResult.Model as Product;
+                return Page();
             }
-            return Page();
+
+            return RedirectToPage("./Index");
         }
     }
 }

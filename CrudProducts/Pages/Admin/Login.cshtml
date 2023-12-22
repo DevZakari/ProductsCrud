@@ -1,0 +1,31 @@
+﻿@page
+@model CrudProducts.Pages.Admin.LoginModel
+@{
+
+    ViewData["Title"] = "Login";
+}
+
+
+
+    <div class="container d-flex align-items-center justify-content-center rounded" style="height: 100vh;">
+        <form class="col-md-4 p-4 rounded bg-white" method="post">
+
+            <h1 class="text-center mb-4">Login</h1>
+            <img src="https://media.istockphoto.com/id/1281150061/vector/register-account-submit-access-login-password-username-internet-online-website-concept.jpg?s=612x612&w=0&k=20&c=9HWSuA9IaU4o-CK6fALBS5eaO1ubnsM08EOYwgbwGBo=" alt="Logo" class="img-fluid mx-auto d-block mb-4" style="max-width: 300px;" />
+
+            <div class="mb-3">
+                <label for="Username" class="form-label">Username:</label>
+                <input type="text" class="form-control" id="Username" name="Username" asp-for="Username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="Password" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="Password" name="Password" asp-for="Password" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Login</button>
+            </div>
+        </form>
+    </div>
+
